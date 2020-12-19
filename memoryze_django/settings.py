@@ -15,6 +15,13 @@ from pathlib import Path
 import os
 
 import dj_database_url
+import environ
+env = environ.Env(
+    # set casting, default value
+    DEBUG=(bool, False)
+)
+# reading .env file
+environ.Env.read_env()
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -32,7 +39,7 @@ SECRET_KEY = os.environ['SECRET_KEY']
 
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = True if env('MODE') == 'dev' else False
 
 ALLOWED_HOSTS = []
 
@@ -48,6 +55,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'memoryze',
     'users',
+    'rest_framework',
 ]
 
 MIDDLEWARE = [

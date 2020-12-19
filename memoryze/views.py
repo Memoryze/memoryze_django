@@ -7,7 +7,7 @@ from .serializers import AudioSerializer, PlaylistSerializer
 
 class AudioView(generics.ListCreateAPIView):
     queryset = Audio.objects.all()
-    serializer_class = AudioSerializer\
+    serializer_class = AudioSerializer
         
 class AudioDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = Audio.objects.all()
@@ -16,7 +16,7 @@ class AudioDetail(generics.RetrieveUpdateDestroyAPIView):
 class PlaylistView(generics.ListCreateAPIView):
      queryset = Playlist.objects.all()
      serializer_class = PlaylistSerializer
-     
+
 class PlaylistDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = Playlist.objects.all()
     serializer_class = PlaylistSerializer 

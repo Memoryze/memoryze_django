@@ -10,6 +10,7 @@ dj-database-url = "*"
 gunicorn = "*"
 djangorestframework = "*"
 pillow = "*"
+django-environ = "*"
 
 [dev-packages]
 

@@ -7,10 +7,6 @@ class AudioSerializer(serializers.HyperlinkedModelSerializer):
         queryset = User.objects.all(),
         source = 'user'
     )
-    tutor = serializers.StringRelatedField(
-        queryset = User.objects.all(),
-        source = 'user'
-    )
     class Meta:
         model = Audio
         fields = ('id', 'title', 'recording', 'tutor_id', 'tutor', 'likes' )
@@ -20,10 +16,6 @@ class PlaylistSerializer(serializers.HyperlinkedModelSerializer):
         queryset = User.objects.all(),
         source = 'user'
     )
-    owner = serializers.StringRelatedField(
-        queryset = User.objects.all(),
-        source = 'user'
-    )
     class Meta:
-        model = Audio
+        model = Playlist
         fields = ('id', 'name', 'owner_id', 'owner', 'audio' )
