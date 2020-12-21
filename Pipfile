@@ -11,6 +11,8 @@ gunicorn = "*"
 djangorestframework = "*"
 pillow = "*"
 django-environ = "*"
+djangorestframework-simplejwt = "*"
+django-multiselectfield = "*"
 
 [dev-packages]
 

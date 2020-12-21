@@ -5,17 +5,17 @@ from users.models import User
 class AudioSerializer(serializers.HyperlinkedModelSerializer):
     tutor_id = serializers.PrimaryKeyRelatedField(
         queryset = User.objects.all(),
-        source = 'user'
+        source = 'tutor'
     )
     class Meta:
         model = Audio
-        fields = ('id', 'title', 'recording', 'tutor_id', 'tutor', 'likes' )
+        fields = ('id', 'title', 'recording', 'tutor_id', 'likes','image', 'categories' )
 
 class PlaylistSerializer(serializers.HyperlinkedModelSerializer):
     owner_id = serializers.PrimaryKeyRelatedField(
         queryset = User.objects.all(),
-        source = 'user'
+        source = 'owner',
     )
     class Meta:
         model = Playlist
-        fields = ('id', 'name', 'owner_id', 'owner', 'audio' )
+        fields = ('id', 'name', 'owner_id', 'audios' )

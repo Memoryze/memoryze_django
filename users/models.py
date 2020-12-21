@@ -62,6 +62,9 @@ class User(AbstractBaseUser, PermissionsMixin):
     is_learner = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    profile_image = models.ImageField(blank=True, null=True, upload_to="images/%Y/%m/%D/")
 
     # Any time we call User.objects (such as in objects.all() or objects.filter())
     # make sure to use the custom user manager we created.
