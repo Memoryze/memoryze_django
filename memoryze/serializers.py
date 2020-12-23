@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Audio, Playlist
+from .models import Audio, Playlist, Activity
 from users.models import User
 
 class AudioSerializer(serializers.HyperlinkedModelSerializer):
@@ -19,3 +19,12 @@ class PlaylistSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Playlist
         fields = ('id', 'name', 'owner_id', 'audios' )
+
+class ActivitySerializer(serializers.HyperlinkedModelSerializer):
+    user_id = serializers.PrimaryKeyRelatedField(
+        queryset = User.objects.all(),
+        source = 'user',
+    )
+    class Meta:
+        model = Activity
+        fields = ('id', 'played_recordings', 'recently_played', 'user_id' )

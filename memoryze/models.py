@@ -24,3 +24,15 @@ class Playlist(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     def __str__(self):
         return f'{self.name}'
+
+class Activity(models.Model):
+    played_recordings = ArrayField(models.JSONField(null=True), default=list)
+    # the array is to take objects that are in this format:
+    # {
+    #     data: {recording object}
+    #     last_played: <current time>,
+    #     times_played: <incremented each time the recording was played>
+    # }
+    recently_played = ArrayField(models.JSONField(null=True), default=list) #recording object
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='trackings', related_query_name='tracking')
