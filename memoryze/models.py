@@ -35,4 +35,4 @@ class Activity(models.Model):
     # }
     recently_played = ArrayField(models.JSONField(null=True), default=list) #recording object
 
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='trackings', related_query_name='tracking')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='activities', related_query_name='activity')

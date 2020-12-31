@@ -7,21 +7,21 @@ from memoryze.serializers import AudioSerializer, PlaylistSerializer, ActivitySe
 class UserSerializer(serializers.HyperlinkedModelSerializer):
     audios = AudioSerializer(many=True, read_only=True)
     playlists = PlaylistSerializer(many=True, read_only=True)
-    activity = ActivitySerializer(read_only=True)
+    activities = ActivitySerializer(many=True, read_only=True)
     
     class Meta:
         model = User
-        fields = ('id', 'name','email', 'password', 'audios', 'playlists','profile_image', 'is_learner', 'is_tutor', 'activity', 'created_at', 'updated_at')
+        fields = ('id', 'name','email', 'password', 'audios', 'playlists','profile_image', 'bio', 'is_learner', 'is_tutor', 'created_at', 'updated_at', 'activities')
 class UserRegistrationSerializer(serializers.ModelSerializer):
     password = serializers.CharField(
         max_length=68, min_length=6, write_only=True)
 
     audios = AudioSerializer(many=True, read_only=True)
     playlists = PlaylistSerializer(many=True, read_only=True)
-
+    activities = ActivitySerializer(many=True, read_only=True)
     class Meta:
         model = User
-        fields = ('id', 'name','email', 'password', 'audios', 'playlists', 'is_learner', 'is_tutor', 'created_at', 'updated_at')
+        fields = ('id', 'name','email', 'password', 'audios', 'playlists','profile_image', 'bio', 'is_learner', 'is_tutor', 'created_at', 'updated_at','activities')
 
     def create(self, validated_data):
         password = validated_data.pop('password', None)
