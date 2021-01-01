@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, BaseUserManager
 from django.conf import settings
+from django.contrib.postgres.fields import ArrayField
 # Create your models here.
 
 class UserManager(BaseUserManager):
@@ -62,6 +63,11 @@ class User(AbstractBaseUser, PermissionsMixin):
     is_learner = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
+    bio = models.CharField(max_length=300, default='')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    profile_image = models.ImageField(blank=True, null=True, upload_to="images/%Y/%m/%D/")
+    
 
     # Any time we call User.objects (such as in objects.all() or objects.filter())
     # make sure to use the custom user manager we created.
@@ -70,13 +76,9 @@ class User(AbstractBaseUser, PermissionsMixin):
     # Tell Django to use the email field as the unique identifier for the
     # user account instead of its built in behavior of using the username.
     USERNAME_FIELD = 'email'
-    # This doesn't mean the field is required (that's defined above in the field options)
-    # This refers to the fields that are prompted for when creating a superuser.
     # https://docs.djangoproject.com/en/3.0/topics/auth/customizing/#django.contrib.auth.models.CustomUser.REQUIRED_FIELDS
     REQUIRED_FIELDS = ['name']
 
-    # Standard Python: We'll create a string representation so when
-    # the class is output we'll get something meaningful.
     def __str__(self):
         """Return string representation of the user"""
         return self.email

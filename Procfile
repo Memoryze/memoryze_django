@@ -1,0 +1,1 @@
+web: gunicorn memoryze_django.wsgi

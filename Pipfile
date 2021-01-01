@@ -10,6 +10,11 @@ dj-database-url = "*"
 gunicorn = "*"
 djangorestframework = "*"
 pillow = "*"
+django-environ = "*"
+djangorestframework-simplejwt = "*"
+django-multiselectfield = "*"
+django-storages = "*"
+boto3 = "*"
 
 [dev-packages]
 
