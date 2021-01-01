@@ -1,14 +1,4 @@
 from rest_framework import serializers
-<<<<<<< HEAD
-from rest_framework_jwt.settings import api_settings
-from users.models import User
-
-class UserSerializer(serializers.HyperlinkedModelSerializer):
-    audios = ReviewSerializer(many=True, read_only=True)
-    class Meta:
-        model = User
-        fields = ('id', 'name','email', 'password', 'audios')
-=======
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from .models import User
 from rest_framework_simplejwt.settings import api_settings
@@ -55,4 +45,3 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
         data.update({'created_at': self.user.created_at})
         # and everything else you want to send in the response
         return data
->>>>>>> dev

@@ -9,10 +9,6 @@ class Audio(models.Model):
     recording = models.FileField(blank=True, null=True, upload_to='recordings/%Y/%m/%D/')
     likes = models.IntegerField(default=0)
     tutor = models.ForeignKey(User, on_delete=models.CASCADE, related_name='audios', related_query_name='audio')
-<<<<<<< HEAD
-
-    
-=======
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     categories = ArrayField(models.CharField(max_length=30), default=list)
@@ -20,7 +16,6 @@ class Audio(models.Model):
 
     def __str__(self):
         return f'{self.title}'
->>>>>>> dev
 class Playlist(models.Model):
     name = models.CharField(max_length=250)
     owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='playlists', related_query_name='playlist')
