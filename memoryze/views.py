@@ -1,3 +1,4 @@
+from django.db import models
 from rest_framework import generics
 from rest_framework.permissions import AllowAny
 from rest_framework.decorators import permission_classes
@@ -14,6 +15,10 @@ class AudioView(generics.ListCreateAPIView):
 class AudioDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = Audio.objects.all()
     serializer_class = AudioSerializer
+    @receiver(models.signals.pre_delete, sender=Audio)
+    def remove_file_from_s3(sender, instance, using, **kwargs):
+       instance.recording.delete(save=False)
+       instance.image.delete(save=False)
 
 @permission_classes((AllowAny, ))
 class PlaylistView(generics.ListCreateAPIView):
