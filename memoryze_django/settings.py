@@ -165,8 +165,7 @@ SIMPLE_JWT = {
 
 # AWS SETTINGS
 DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
-AWS_STORAGE_BUCKET_NAME = os.environ['BUCKET_NAME']
-# AWS_S3_REGION_NAME = 'REGION_NAME'  # e.g. us-east-2
+AWS_STORAGE_BUCKET_NAME = os.environ['BUCKET_NAME'] AWS_S3_REGION_NAME = 'US East (N. Virginia) us-east-1'  # e.g. us-east-2
 AWS_ACCESS_KEY_ID = os.environ['ACCESS_KEY_ID']
 AWS_SECRET_ACCESS_KEY = os.environ['SECRET_ACCESS_KEY']
 # Tell django-storages the domain to use to refer to static files.
