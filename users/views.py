@@ -1,3 +1,5 @@
+from django.db import models
+from django.dispatch import receiver
 from django.http import HttpResponseRedirect
 from .models import User
 from rest_framework.decorators import permission_classes
@@ -23,6 +25,9 @@ class UserView(generics.ListAPIView):
 class UserDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
+    @receiver(models.signals.pre_delete, sender=User)
+    def remove_file_from_s3(sender, instance, using, **kwargs):
+       instance.profile_image.delete(save=False)
 
 @permission_classes((AllowAny, ))
 class MyTokenObtainPairView(TokenObtainPairView):

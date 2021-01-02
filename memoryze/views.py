@@ -29,7 +29,7 @@ class PlaylistView(generics.ListCreateAPIView):
 @permission_classes((AllowAny, ))
 class PlaylistDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = Playlist.objects.all()
-    serializer_class = PlaylistSerializer 
+    serializer_class = PlaylistSerializer
 
 @permission_classes((AllowAny, ))
 class ActivityView(generics.ListCreateAPIView):
