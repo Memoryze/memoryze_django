@@ -3,6 +3,8 @@ from users.models import User
 from django.contrib.postgres.fields import ArrayField
 
 # Create your models here.
+# class Category(models.Model):
+#     category = models.CharField(max_length=30)
 
 class Audio(models.Model):
     title = models.CharField(max_length=250)
