@@ -45,3 +45,9 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
         data.update({'created_at': self.user.created_at})
         # and everything else you want to send in the response
         return data
+        
+class EmailVerificationSerializer(serializers.ModelSerializer):
+    token = serializers.CharField(max_length=555)
+    class Meta:
+        model = User
+        fields = ['token']
