@@ -20,11 +20,11 @@ class UserCreate(generics.GenericAPIView):
     def post(self, request):
         user = request.data
         serializer = self.serializer_class(data=user)
-        serializer.save()
+        if serializer.is_valid():
+            serializer.save()
         user_data = serializer.data
         
         return Response(user_data, status=status.HTTP_201_CREATED)
-
 @permission_classes((AllowAny, ))
 class UserView(generics.ListAPIView):
     queryset = User.objects.all()

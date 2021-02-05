@@ -28,8 +28,9 @@ environ.Env.read_env()
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-# MEDIA_URL = "/media/"
+# Comment these out before production, only works locally
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_URL = "/media/"
 
 
 # Quick-start development settings - unsuitable for production
@@ -41,6 +42,7 @@ SECRET_KEY = os.environ['SECRET_KEY']
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True if env('MODE') == 'dev' else False
+
 
 ALLOWED_HOSTS = ['*']
 
@@ -140,7 +142,9 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
 
-# STATIC_URL = '/static/'
+
+# Uncomment this when working locally
+STATIC_URL = '/static/'
 
 REST_FRAMEWORK = {
     # Use Django's standard `django.contrib.auth` permissions,
@@ -164,25 +168,27 @@ SIMPLE_JWT = {
 }
 
 # AWS SETTINGS
-DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
-AWS_STORAGE_BUCKET_NAME = os.environ['BUCKET_NAME']
-AWS_S3_REGION_NAME = 'us-east-1' 
-AWS_ACCESS_KEY_ID = os.environ['ACCESS_KEY_ID']
-AWS_SECRET_ACCESS_KEY = os.environ['SECRET_ACCESS_KEY']
+# Uncomment these before pushing to production
+# DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+# AWS_STORAGE_BUCKET_NAME = os.environ['BUCKET_NAME']
+# AWS_S3_REGION_NAME = 'us-east-1' 
+# AWS_ACCESS_KEY_ID = os.environ['ACCESS_KEY_ID']
+# AWS_SECRET_ACCESS_KEY = os.environ['SECRET_ACCESS_KEY']
 # Tell django-storages the domain to use to refer to static files.
-AWS_S3_CUSTOM_DOMAIN = '%s.s3.amazonaws.com' % AWS_STORAGE_BUCKET_NAME
+# AWS_S3_CUSTOM_DOMAIN = '%s.s3.amazonaws.com' % AWS_STORAGE_BUCKET_NAME
 
 # Tell the staticfiles app to use S3Boto3 storage when writing the collected static files (when
 # you run `collectstatic`).
+# leave the line bellow commented out
 # STATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
  
 
+# UNCOMMENT THESE TOO
+# STATICFILES_LOCATION = 'static'
+# STATICFILES_STORAGE = 'custom_storages.StaticStorage'
 
-STATICFILES_LOCATION = 'static'
-STATICFILES_STORAGE = 'custom_storages.StaticStorage'
-
-MEDIAFILES_LOCATION = 'media'
-DEFAULT_FILE_STORAGE = 'custom_storages.MediaStorage'
+# MEDIAFILES_LOCATION = 'media'
+# DEFAULT_FILE_STORAGE = 'custom_storages.MediaStorage'
 
 # STATIC_ROOT=os.path.join(BASE_DIR, "static/")
 
