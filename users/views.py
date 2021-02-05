@@ -14,9 +14,17 @@ from .serializers import UserRegistrationSerializer, UserSerializer, MyTokenObta
 
 # Create your views here.
 @permission_classes((AllowAny, ))
-class UserCreate(generics.CreateAPIView):
-    queryset = User.objects.all()
+class UserCreate(generics.GenericAPIView):
+    # queryset = User.objects.all()
     serializer_class = UserRegistrationSerializer
+    def post(self, request):
+        user = request.data
+        serializer = self.serializer_class(data=user)
+        serializer.save()
+        user_data = serializer.data
+        
+        return Response(user_data, status=status.HTTP_201_CREATED)
+
 @permission_classes((AllowAny, ))
 class UserView(generics.ListAPIView):
     queryset = User.objects.all()
