@@ -38,14 +38,12 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
         # Custom data you want to include
         data.update({'name': self.user.name})
         data.update({'id': self.user.id})
-        data.update({'audios': self.user.audios})
-        data.update({'playlists': self.user.playlists})
         data.update({'is_learner': self.user.is_learner})
         data.update({'is_tutor': self.user.is_tutor})
         data.update({'created_at': self.user.created_at})
         # and everything else you want to send in the response
         return data
-        
+
 class EmailVerificationSerializer(serializers.ModelSerializer):
     token = serializers.CharField(max_length=555)
     class Meta:

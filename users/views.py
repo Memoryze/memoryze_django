@@ -44,10 +44,10 @@ class UserCreate(generics.GenericAPIView):
 @permission_classes((AllowAny, ))
 class VerifyEmail(generics.GenericAPIView):
     serializer_class = EmailVerificationSerializer
-    def get(self):
+    def get(self, request):
         token = request.GET.get('token')
         try: 
-            payload = jwt.decode(token, settings.SECRET_KEY)
+            payload = jwt.decode(token, settings.SECRET_KEY, ['HS256'])
             user = User.objects.get(id=payload['user_id'])
             if not user.is_verified:
                 user.is_verified = True
@@ -56,10 +56,10 @@ class VerifyEmail(generics.GenericAPIView):
             return Response({'email': 'Successfully activated'}, status=status.HTTP_200_OK)
 
         except jwt.ExpiredSignatureError as identifier:
-            return Response({'error': 'Activated Expired'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'error': 'Activation Link Expired'}, status=status.HTTP_400_BAD_REQUEST)
         # if the link has been tampered with and cant be decoded
         except jwt.exceptions.DecodeError as identifier:
-            return Response({'error': 'Invalid Token, Request new one'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'error': 'Invalid Token, Request new link'}, status=status.HTTP_400_BAD_REQUEST)
 
 
 
