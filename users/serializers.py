@@ -11,7 +11,7 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
     
     class Meta:
         model = User
-        fields = ('id', 'name','email', 'password', 'audios', 'playlists','profile_image', 'bio', 'is_learner', 'is_tutor', 'created_at', 'updated_at', 'activities')
+        fields = ('id', 'name','email', 'password', 'audios', 'playlists','profile_image', 'bio', 'code','is_verified','is_learner', 'is_tutor', 'created_at', 'updated_at', 'activities')
 class UserRegistrationSerializer(serializers.ModelSerializer):
     password = serializers.CharField(
         max_length=68, min_length=6, write_only=True)
@@ -21,7 +21,7 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
     activities = ActivitySerializer(many=True, read_only=True)
     class Meta:
         model = User
-        fields = ('id', 'name','email', 'password', 'audios', 'playlists','profile_image', 'bio', 'is_learner', 'is_tutor', 'created_at', 'updated_at','activities')
+        fields = ('id', 'name','email', 'password', 'audios', 'playlists','profile_image', 'bio','code', 'is_verified','is_learner', 'is_tutor', 'created_at', 'updated_at','activities')
 
     def create(self, validated_data):
         password = validated_data.pop('password', None)
@@ -38,14 +38,15 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
         # Custom data you want to include
         data.update({'name': self.user.name})
         data.update({'id': self.user.id})
+        data.update({'code': self.user.code})
         data.update({'is_learner': self.user.is_learner})
         data.update({'is_tutor': self.user.is_tutor})
         data.update({'created_at': self.user.created_at})
         # and everything else you want to send in the response
         return data
-
-class EmailVerificationSerializer(serializers.ModelSerializer):
-    token = serializers.CharField(max_length=555)
+class ResendCodeSerializer(serializers.ModelSerializer):
+    code = serializers.CharField(max_length=30)
+    user_id = serializers.IntegerField()
     class Meta:
         model = User
-        fields = ['token']
+        fields = ['user_id', 'code']

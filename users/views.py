@@ -10,7 +10,7 @@ from rest_framework import permissions, status, views, generics
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from .serializers import UserRegistrationSerializer, UserSerializer, MyTokenObtainPairSerializer, EmailVerificationSerializer
+from .serializers import UserRegistrationSerializer, UserSerializer, MyTokenObtainPairSerializer, ResendCodeSerializer
 from .utils import Util
 from django.contrib.sites.shortcuts import get_current_site
 from django.urls import reverse 
@@ -27,41 +27,30 @@ class UserCreate(generics.GenericAPIView):
         if serializer.is_valid():
             serializer.save()
         user_data = serializer.data
-        user=User.objects.get(email=user_data['email'])
+        user = User.objects.get(email=user_data['email'])
 
-        token=RefreshToken.for_user(user).access_token
-
-        current_site = get_current_site(request)
-        relativeLink = reverse('verify-email')
-        
-        absurl = f'http://{current_site}{relativeLink}?token={str(token)}'
-        email_body=f'Hi {user.name}, thanks for signing up to Memoryze, use the link below to verify your account \n {absurl}'
-        data = {'email_body': email_body, 'email_subject': 'Verify Your Email', 'to_email': user.email}
+        code = user_data['code']
+        email_body=f'Hey {user.name}, ]n\nWe are so glad you signed up for Memoryze. \nTo start enjoying the benefits of audio learning, kindly verify your email address by using the verification code (which self-destructs in 15 minutes 🤭) below:  \n\n{code} \n\nCheers, \n\nThe Memoryze Team. \nDidn\'t sign up for Memoryze? No need to worry. Somebody probably put in your email address by accident. Feel free to ignore this email.'
+        data = {'email_body': email_body, 'email_subject': 'Email Verification Code', 'to_email': user.email}
         Util.send_email(data)
         
         return Response(user_data, status=status.HTTP_201_CREATED)
-
+        
 @permission_classes((AllowAny, ))
-class VerifyEmail(generics.GenericAPIView):
-    serializer_class = EmailVerificationSerializer
-    def get(self, request):
-        token = request.GET.get('token')
-        try: 
-            payload = jwt.decode(token, settings.SECRET_KEY, ['HS256'])
-            user = User.objects.get(id=payload['user_id'])
-            if not user.is_verified:
-                user.is_verified = True
-                user.save()
+class ResendCode(generics.GenericAPIView):
+    serializer_class = ResendCodeSerializer
+    def post(self, request):
+        data = {'user_id' : request.data['user_id'], 'code' : request.data['code']}
+        user = User.objects.get(id=data['user_id'])
+        user.code = data['code']
+        user.save()        
+        code = user.code
 
-            return Response({'email': 'Successfully activated'}, status=status.HTTP_200_OK)
-
-        except jwt.ExpiredSignatureError as identifier:
-            return Response({'error': 'Activation Link Expired'}, status=status.HTTP_400_BAD_REQUEST)
-        # if the link has been tampered with and cant be decoded
-        except jwt.exceptions.DecodeError as identifier:
-            return Response({'error': 'Invalid Token, Request new link'}, status=status.HTTP_400_BAD_REQUEST)
-
-
+        email_body=f'Hey {user.name}, \nIt seems like you weren\'t able to use the previous verification code before it expired. \nNo worries, here\'s a new one:  \n\n{code} \nCheers, The Memoryze Team. \nDidn\'t sign up for Memoryze? No need to worry. Someone probably put in your email address by accident. Feel free to ignore this email.'
+        email_data = {'email_body': email_body, 'email_subject': 'New Email Verification Code', 'to_email': user.email}
+        Util.send_email(email_data)
+        return Response(data, status=status.HTTP_200_OK)
+        
 
 @permission_classes((AllowAny, ))
 class UserView(generics.ListAPIView):
