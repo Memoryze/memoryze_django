@@ -55,7 +55,6 @@ class ResendCode(generics.GenericAPIView):
         Util.send_email(email_data)
         return Response(data, status=status.HTTP_200_OK)
         
-@permission_classes((AllowAny, ))
 class UserView(generics.ListAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
