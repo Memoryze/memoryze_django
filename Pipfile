@@ -17,6 +17,7 @@ django-storages = "*"
 boto3 = "*"
 whitenoise = "*"
 django-cors-headers = "*"
+requests = "*"
 
 [dev-packages]
 

@@ -36,12 +36,7 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
         # The default result (access/refresh tokens)
         data = super(MyTokenObtainPairSerializer, self).validate(attrs)
         # Custom data you want to include
-        data.update({'name': self.user.name})
         data.update({'id': self.user.id})
-        data.update({'code': self.user.code})
-        data.update({'is_learner': self.user.is_learner})
-        data.update({'is_tutor': self.user.is_tutor})
-        data.update({'created_at': self.user.created_at})
         # and everything else you want to send in the response
         return data
 class ResendCodeSerializer(serializers.ModelSerializer):

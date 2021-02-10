@@ -11,10 +11,10 @@ env = environ.Env(
 api_key = env('ACCESS_KEY')
 
 urlpatterns = [
-    path(f'create_user/', UserCreate.as_view()),
+    path(f'create_user/{api_key}', UserCreate.as_view()),
     path(f'users/{api_key}', UserView.as_view()),
     path(f'users/<int:pk>/{api_key}', UserDetail.as_view()),
-    path('token/', MyTokenObtainPairView.as_view(), name='token_obtain_pair'),
-    path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
-    path('resend_code/', ResendCode.as_view(), name='resend_code'),
+    path(f'token/{api_key}', MyTokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path(f'token/refresh/{api_key}', TokenRefreshView.as_view(), name='token_refresh'),
+    path(f'resend_code/{api_key}', ResendCode.as_view(), name='resend_code'),
     ]

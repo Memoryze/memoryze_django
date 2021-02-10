@@ -15,7 +15,10 @@ from .utils import Util
 from django.contrib.sites.shortcuts import get_current_site
 from django.urls import reverse 
 import jwt
+import requests
 from django.conf import settings
+from django.template import Context
+from django.template.loader import render_to_string
 # Create your views here.
 @permission_classes((AllowAny, ))
 class UserCreate(generics.GenericAPIView):
@@ -29,9 +32,10 @@ class UserCreate(generics.GenericAPIView):
         user_data = serializer.data
         user = User.objects.get(email=user_data['email'])
 
-        code = user_data['code']
-        email_body=f'Hey {user.name}, ]n\nWe are so glad you signed up for Memoryze. \nTo start enjoying the benefits of audio learning, kindly verify your email address by using the verification code (which self-destructs in 15 minutes 🤭) below:  \n\n{code} \n\nCheers, \n\nThe Memoryze Team. \nDidn\'t sign up for Memoryze? No need to worry. Somebody probably put in your email address by accident. Feel free to ignore this email.'
-        data = {'email_body': email_body, 'email_subject': 'Email Verification Code', 'to_email': user.email}
+        code = user.code
+        html_content = render_to_string('users/sign_up_verification_code.html', {'user':user.name, 'code': code})
+
+        data = {'email_subject': 'Email Verification Code', 'to_email': user.email, 'html_content':html_content}
         Util.send_email(data)
         
         return Response(user_data, status=status.HTTP_201_CREATED)
@@ -46,13 +50,12 @@ class ResendCode(generics.GenericAPIView):
         user.save()        
         code = user.code
 
-        email_body=f'Hey {user.name}, \nIt seems like you weren\'t able to use the previous verification code before it expired. \nNo worries, here\'s a new one:  \n\n{code} \nCheers, The Memoryze Team. \nDidn\'t sign up for Memoryze? No need to worry. Someone probably put in your email address by accident. Feel free to ignore this email.'
-        email_data = {'email_body': email_body, 'email_subject': 'New Email Verification Code', 'to_email': user.email}
+        html_content = render_to_string('users/new_code.html', {'user':user.name, 'code': code}) 
+        email_data = {'email_subject': 'New Email Verification Code', 'to_email': user.email, 'html_content':html_content}
         Util.send_email(email_data)
         return Response(data, status=status.HTTP_200_OK)
         
 
-@permission_classes((AllowAny, ))
 class UserView(generics.ListAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer

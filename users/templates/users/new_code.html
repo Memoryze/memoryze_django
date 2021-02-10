@@ -1,0 +1,10 @@
+{% extends 'users/base.html' %}
+{% block content %}
+<p>Hey {{ user }}, </p>
+<p>It seems like you weren't able to use the previous verification code before it expired. No worries, here's a new one: </p>
+<p>{{ code }}</p>
+
+<p>Cheers, <br/>The Memoryze Team.</p>
+<p class='last-paragraph' style="font-size:12px;"> Didn't sign up for Memoryze? No need to worry. Somebody probably put
+    in your email address by accident. Feel free to ignore this email.</p>
+{% endblock %}
