@@ -44,7 +44,7 @@ class UserCreate(generics.GenericAPIView):
 class ResendCode(generics.GenericAPIView):
     serializer_class = ResendCodeSerializer
     def post(self, request):
-        data = {'user_id' : request.data['user_id'], 'code' : request.data['code']}
+        data = {'user_id' : request.data['user_id'], 'code' : request.data['code'], 'user_agent': request.META['HTTP_USER_AGENT']}
         user = User.objects.get(id=data['user_id'])
         user.code = data['code']
         user.save()        
@@ -54,7 +54,7 @@ class ResendCode(generics.GenericAPIView):
         email_data = {'email_subject': 'New Email Verification Code', 'to_email': user.email, 'html_content':html_content}
         Util.send_email(email_data)
         return Response(data, status=status.HTTP_200_OK)
-        
+@permission_classes((AllowAny, ))       
 class UserView(generics.ListAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
