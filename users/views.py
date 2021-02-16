@@ -19,41 +19,62 @@ import requests
 from django.conf import settings
 from django.template import Context
 from django.template.loader import render_to_string
+import math, random
 # Create your views here.
 @permission_classes((AllowAny, ))
 class UserCreate(generics.GenericAPIView):
     # queryset = User.objects.all()
     serializer_class = UserRegistrationSerializer
     def post(self, request):
-        user = request.data
-        serializer = self.serializer_class(data=user)
-        if serializer.is_valid():
-            serializer.save()
-        user_data = serializer.data
-        user = User.objects.get(email=user_data['email'])
+        user_agent = request.META['HTTP_USER_AGENT']
+        android = 'okhttp/3.12.1'
+        expo_ios_phone = 'Expo/2.18.4.1010552 CFNetwork/1209 Darwin/20.2.0'
+        expo_ios_simulator = 'Expo/2.17.4.101 CFNetwork/1220.1 Darwin/20.2.0'
 
-        code = user.code
-        html_content = render_to_string('users/sign_up_verification_code.html', {'user':user.name, 'code': code})
+        if (user_agent == android) or (user_agent == expo_ios_phone) or (user_agent == expo_ios_simulator) or ('Mozilla/5.0' in user_agent): 
+            
+            user = request.data
+            serializer = self.serializer_class(data=user)
+            if serializer.is_valid():
+                serializer.save()
+            user_data = serializer.data
+            user = User.objects.get(email=user_data['email'])
 
-        data = {'email_subject': 'Email Verification Code', 'to_email': user.email, 'html_content':html_content}
-        Util.send_email(data)
-        
-        return Response(user_data, status=status.HTTP_201_CREATED)
-        
+            code = user.code
+            html_content = render_to_string('users/sign_up_verification_code.html', {'user':user.name, 'code': code})
+
+            data = {'email_subject': 'Email Verification Code', 'to_email': user.email, 'html_content':html_content}
+            Util.send_email(data)
+
+            return Response(user_data, status=status.HTTP_201_CREATED)
+        else:
+            return Response({'error': "Access Denied, oops!"}, status=status.HTTP_423_LOCKED)
+
+
 @permission_classes((AllowAny, ))
 class ResendCode(generics.GenericAPIView):
     serializer_class = ResendCodeSerializer
     def post(self, request):
-        data = {'user_id' : request.data['user_id'], 'code' : request.data['code'], 'user_agent': request.META['HTTP_USER_AGENT']}
-        user = User.objects.get(id=data['user_id'])
-        user.code = data['code']
-        user.save()        
-        code = user.code
+        user = User.objects.get(id=request.data['user_id'])
+        # generate the code
+        code = ''
+        possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
+        for i in range(5):
+            index = math.floor(random.random() * len(possible))
+            code += possible[index]
+        code = code + str(random.random())[0]
 
-        html_content = render_to_string('users/new_code.html', {'user':user.name, 'code': code}) 
+        user.code = code
+        user.save()        
+        data = {'user_id' : request.data['user_id'], 'code' : code}
+
+        #create and send email html content
+        html_content = render_to_string('users/new_code.html', {'user':user.name, 'code': user.code}) 
         email_data = {'email_subject': 'New Email Verification Code', 'to_email': user.email, 'html_content':html_content}
         Util.send_email(email_data)
         return Response(data, status=status.HTTP_200_OK)
+
+
 @permission_classes((AllowAny, ))       
 class UserView(generics.ListAPIView):
     queryset = User.objects.all()

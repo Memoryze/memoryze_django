@@ -40,8 +40,7 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
         # and everything else you want to send in the response
         return data
 class ResendCodeSerializer(serializers.ModelSerializer):
-    code = serializers.CharField(max_length=30)
     user_id = serializers.IntegerField()
     class Meta:
         model = User
-        fields = ['user_id', 'code']
+        fields = ['user_id']

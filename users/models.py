@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, BaseUserManager
 from django.conf import settings
 from django.contrib.postgres.fields import ArrayField
+import math, random
 # Create your models here.
 
 class UserManager(BaseUserManager):
@@ -54,6 +55,12 @@ class UserManager(BaseUserManager):
         # Always return the user!
         return user
 class User(AbstractBaseUser, PermissionsMixin):
+    code = ''
+    possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
+    for i in range(5):
+        index = math.floor(random.random() * len(possible))
+        code += possible[index]
+    code = code + str(random.random())[0]
     """Database model for users"""
     # As with any Django models, we need to define the fields
     # for the model with the type and options:
@@ -64,7 +71,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
     is_verified = models.BooleanField(default=False)
-    code = models.CharField(unique=False, max_length=100, default='1222')
+    code = models.CharField(max_length=30, default=code)
     bio = models.CharField(max_length=300, default='')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
