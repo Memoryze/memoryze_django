@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import UserView, UserDetail, UserCreate, MyTokenObtainPairView, ResendCode
+from .views import UserView, UserDetail, UserCreate, MyTokenObtainPairView, ResendCode, MiddleManLoginView
 from rest_framework_simplejwt.views import TokenRefreshView
 # help from https://medium.com/django-rest/django-rest-framework-jwt-authentication-94bee36f2af8
 import os
@@ -17,4 +17,5 @@ urlpatterns = [
     path(f'token/{api_key}', MyTokenObtainPairView.as_view(), name='token_obtain_pair'),
     path(f'token/refresh/{api_key}', TokenRefreshView.as_view(), name='token_refresh'),
     path(f'resend_code/{api_key}', ResendCode.as_view(), name='resend_code'),
+    path('login_middle_man/', MiddleManLoginView.as_view(), name='login_middle_man'),
     ]

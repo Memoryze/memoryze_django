@@ -55,6 +55,7 @@ class UserManager(BaseUserManager):
         # Always return the user!
         return user
 class User(AbstractBaseUser, PermissionsMixin):
+    # generate the code
     code = ''
     possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
     for i in range(5):

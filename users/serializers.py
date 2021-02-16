@@ -44,3 +44,9 @@ class ResendCodeSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['user_id']
+class MiddleManLoginSerializer(serializers.ModelSerializer):
+    email = serializers.EmailField(max_length=255)
+    password = serializers.CharField(max_length=255)
+    class Meta:
+        model = User
+        fields = ['email', 'password']

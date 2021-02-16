@@ -10,16 +10,23 @@ from rest_framework import permissions, status, views, generics
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from .serializers import UserRegistrationSerializer, UserSerializer, MyTokenObtainPairSerializer, ResendCodeSerializer
+from .serializers import UserRegistrationSerializer, UserSerializer, MyTokenObtainPairSerializer, ResendCodeSerializer, MiddleManLoginSerializer
 from .utils import Util
 from django.contrib.sites.shortcuts import get_current_site
 from django.urls import reverse 
 import jwt
 import requests
+import json
 from django.conf import settings
 from django.template import Context
 from django.template.loader import render_to_string
 import math, random
+import environ
+
+env = environ.Env(
+    # set casting, default value
+    DEBUG=(bool, False)
+)
 # Create your views here.
 @permission_classes((AllowAny, ))
 class UserCreate(generics.GenericAPIView):
@@ -55,24 +62,33 @@ class UserCreate(generics.GenericAPIView):
 class ResendCode(generics.GenericAPIView):
     serializer_class = ResendCodeSerializer
     def post(self, request):
-        user = User.objects.get(id=request.data['user_id'])
-        # generate the code
-        code = ''
-        possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
-        for i in range(5):
-            index = math.floor(random.random() * len(possible))
-            code += possible[index]
-        code = code + str(random.random())[0]
+        user_agent = request.META['HTTP_USER_AGENT']
 
-        user.code = code
-        user.save()        
-        data = {'user_id' : request.data['user_id'], 'code' : code}
+        android = 'okhttp/3.12.1'
+        expo_ios_phone = 'Expo/2.18.4.1010552 CFNetwork/1209 Darwin/20.2.0'
+        expo_ios_simulator = 'Expo/2.17.4.101 CFNetwork/1220.1 Darwin/20.2.0'
 
-        #create and send email html content
-        html_content = render_to_string('users/new_code.html', {'user':user.name, 'code': user.code}) 
-        email_data = {'email_subject': 'New Email Verification Code', 'to_email': user.email, 'html_content':html_content}
-        Util.send_email(email_data)
-        return Response(data, status=status.HTTP_200_OK)
+        if (user_agent == android) or (user_agent == expo_ios_phone) or (user_agent == expo_ios_simulator) or ('Mozilla/5.0' in user_agent):
+            user = User.objects.get(id=request.data['user_id'])
+            # generate the code
+            code = ''
+            possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
+            for i in range(5):
+                index = math.floor(random.random() * len(possible))
+                code += possible[index]
+            code = code + str(random.random())[0]
+
+            user.code = code
+            user.save()        
+            data = {'user_id' : request.data['user_id'], 'code' : code}
+
+            #create and send email html content
+            html_content = render_to_string('users/new_code.html', {'user':user.name, 'code': user.code}) 
+            email_data = {'email_subject': 'New Email Verification Code', 'to_email': user.email, 'html_content':html_content}
+            Util.send_email(email_data)
+            return Response(data, status=status.HTTP_200_OK)
+        else:
+            return Response({'error': "Access Denied, oops!"}, status=status.HTTP_423_LOCKED)
 
 
 @permission_classes((AllowAny, ))       
@@ -90,3 +106,23 @@ class UserDetail(generics.RetrieveUpdateDestroyAPIView):
 @permission_classes((AllowAny, ))
 class MyTokenObtainPairView(TokenObtainPairView):
     serializer_class = MyTokenObtainPairSerializer
+@permission_classes((AllowAny, ))
+class MiddleManLoginView(generics.GenericAPIView):
+    serializer_class = MiddleManLoginSerializer
+    def post(self, request):
+        user_agent = request.META['HTTP_USER_AGENT']
+
+        android = 'okhttp/3.12.1'
+        expo_ios_phone = 'Expo/2.18.4.1010552 CFNetwork/1209 Darwin/20.2.0'
+        expo_ios_simulator = 'Expo/2.17.4.101 CFNetwork/1220.1 Darwin/20.2.0'
+
+        domain = env('DEVELOPMENT_DOMAIN') if env('MODE') == 'dev' else env('PRODUCTION_DOMAIN')
+        api_key = env('ACCESS_KEY')
+        url = f'{domain}/users/token/{api_key}'
+        if (user_agent == android) or (user_agent == expo_ios_phone) or (user_agent == expo_ios_simulator) or ('Mozilla/5.0' in user_agent):
+            data = {'email': request.data['email'], 'password':request.data['password']}
+            headers = {'Content-Type': 'application/json'}
+            response = requests.post(url, data=json.dumps(data), headers=headers)
+            return  Response(response.json(), status=status.HTTP_200_OK)
+        else:
+            return Response({'error': "Access Denied, oops!"}, status=status.HTTP_423_LOCKED)
