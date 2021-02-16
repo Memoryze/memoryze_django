@@ -38,7 +38,7 @@ class UserCreate(generics.GenericAPIView):
         expo_ios_phone = 'Expo/2.18.4.1010552 CFNetwork/1209 Darwin/20.2.0'
         expo_ios_simulator = 'Expo/2.17.4.101 CFNetwork/1220.1 Darwin/20.2.0'
 
-        if (user_agent == android) or (user_agent == expo_ios_phone) or (user_agent == expo_ios_simulator) or ('Mozilla/5.0' in user_agent): 
+        if (user_agent == android) or (user_agent == expo_ios_phone) or (user_agent == expo_ios_simulator) or ('AppleWebKit/537.36' in user_agent): 
             
             user = request.data
             serializer = self.serializer_class(data=user)
@@ -68,7 +68,7 @@ class ResendCode(generics.GenericAPIView):
         expo_ios_phone = 'Expo/2.18.4.1010552 CFNetwork/1209 Darwin/20.2.0'
         expo_ios_simulator = 'Expo/2.17.4.101 CFNetwork/1220.1 Darwin/20.2.0'
 
-        if (user_agent == android) or (user_agent == expo_ios_phone) or (user_agent == expo_ios_simulator) or ('Mozilla/5.0' in user_agent):
+        if (user_agent == android) or (user_agent == expo_ios_phone) or (user_agent == expo_ios_simulator) or ('AppleWebKit/537.36' in user_agent):
             user = User.objects.get(id=request.data['user_id'])
             # generate the code
             code = ''
@@ -119,7 +119,7 @@ class MiddleManLoginView(generics.GenericAPIView):
         domain = env('DEVELOPMENT_DOMAIN') if env('MODE') == 'dev' else env('PRODUCTION_DOMAIN')
         api_key = env('ACCESS_KEY')
         url = f'{domain}/users/token/{api_key}'
-        if (user_agent == android) or (user_agent == expo_ios_phone) or (user_agent == expo_ios_simulator) or ('Mozilla/5.0' in user_agent):
+        if (user_agent == android) or (user_agent == expo_ios_phone) or (user_agent == expo_ios_simulator) or ('AppleWebKit/537.36' in user_agent):
             data = {'email': request.data['email'], 'password':request.data['password']}
             headers = {'Content-Type': 'application/json'}
             response = requests.post(url, data=json.dumps(data), headers=headers)
