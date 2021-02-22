@@ -57,11 +57,11 @@ class UserManager(BaseUserManager):
 class User(AbstractBaseUser, PermissionsMixin):
     # generate the code
     code = ''
-    possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
-    for i in range(5):
+    possible = '0123456789'
+    for i in range(6):
         index = math.floor(random.random() * len(possible))
         code += possible[index]
-    code = code + str(random.random())[0]
+
     """Database model for users"""
     # As with any Django models, we need to define the fields
     # for the model with the type and options:

@@ -72,11 +72,10 @@ class ResendCode(generics.GenericAPIView):
             user = User.objects.get(id=request.data['user_id'])
             # generate the code
             code = ''
-            possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
-            for i in range(5):
+            possible = '0123456789'
+            for i in range(6):
                 index = math.floor(random.random() * len(possible))
                 code += possible[index]
-            code = code + str(random.random())[0]
 
             user.code = code
             user.save()        
