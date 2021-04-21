@@ -10,7 +10,7 @@ from rest_framework import permissions, status, views, generics
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from .serializers import UserRegistrationSerializer, UserSerializer, MyTokenObtainPairSerializer, ResendCodeSerializer, MiddleManLoginSerializer
+from .serializers import UserRegistrationSerializer, UserSerializer, MyTokenObtainPairSerializer, ResendCodeSerializer, MiddleManLoginSerializer, ForgotPasswordSerializer, VerifyUserSerializer
 from .utils import Util
 from django.contrib.sites.shortcuts import get_current_site
 from django.urls import reverse 
@@ -28,58 +28,63 @@ env = environ.Env(
     DEBUG=(bool, False)
 )
 # Create your views here.
+android = 'okhttp/3.12.1'
+expo_ios_phone = 'Expo/2.18.4.1010552 CFNetwork/1209 Darwin/20.2.0'
+expo_ios_simulator = 'Expo/2.17.4.101 CFNetwork/1220.1 Darwin/20.2.0'
+
+def generate_code(possible_chars):
+    code = '' 
+    for i in range(6):
+        index = math.floor(random.random() * len(possible_chars))
+        code += possible_chars[index]
+    return code
+
 @permission_classes((AllowAny, ))
 class UserCreate(generics.GenericAPIView):
     # queryset = User.objects.all()
     serializer_class = UserRegistrationSerializer
     def post(self, request):
         user_agent = request.META['HTTP_USER_AGENT']
-        android = 'okhttp/3.12.1'
-        expo_ios_phone = 'Expo/2.18.4.1010552 CFNetwork/1209 Darwin/20.2.0'
-        expo_ios_simulator = 'Expo/2.17.4.101 CFNetwork/1220.1 Darwin/20.2.0'
 
         if (user_agent == android) or (user_agent == expo_ios_phone) or (user_agent == expo_ios_simulator) or ('AppleWebKit/537.36' in user_agent): 
-            
             user = request.data
             serializer = self.serializer_class(data=user)
-            if serializer.is_valid():
+            if serializer.is_valid():  
                 serializer.save()
-            user_data = serializer.data
-            user = User.objects.get(email=user_data['email'])
+                user_data = serializer.data
+                user = User.objects.get(email=user_data['email'])
 
-            code = user.code
-            html_content = render_to_string('users/sign_up_verification_code.html', {'user':user.name, 'code': code})
+                code = user.code
+                html_content = render_to_string('users/sign_up_verification_code.html', {'user':user.name, 'code': code})
 
-            data = {'email_subject': 'Email Verification Code', 'to_email': user.email, 'html_content':html_content}
-            Util.send_email(data)
+                data = {'email_subject': 'Email Verification Code', 'to_email': user.email, 'html_content':html_content}
+                Util.send_email(data)
 
-            return Response(user_data, status=status.HTTP_201_CREATED)
+                return Response(user_data, status=status.HTTP_201_CREATED)
+            else:
+                try:
+                    user = User.objects.get(name=request.data['name'])
+                    return Response({'error': 'Username taken'}, status=status.HTTP_200_OK)
+                except User.DoesNotExist:
+                    return Response({'error': 'User with email already exists'}, status=status.HTTP_200_OK)       
         else:
             return Response({'error': "Access Denied, oops!"}, status=status.HTTP_423_LOCKED)
 
 
 @permission_classes((AllowAny, ))
-class ResendCode(generics.GenericAPIView):
+class ResendCodeView(generics.GenericAPIView):
     serializer_class = ResendCodeSerializer
     def post(self, request):
         user_agent = request.META['HTTP_USER_AGENT']
 
-        android = 'okhttp/3.12.1'
-        expo_ios_phone = 'Expo/2.18.4.1010552 CFNetwork/1209 Darwin/20.2.0'
-        expo_ios_simulator = 'Expo/2.17.4.101 CFNetwork/1220.1 Darwin/20.2.0'
-
         if (user_agent == android) or (user_agent == expo_ios_phone) or (user_agent == expo_ios_simulator) or ('AppleWebKit/537.36' in user_agent):
-            user = User.objects.get(id=request.data['user_id'])
+            user = User.objects.get(email=request.data['email'])
             # generate the code
-            code = ''
-            possible = '0123456789'
-            for i in range(6):
-                index = math.floor(random.random() * len(possible))
-                code += possible[index]
+            code = generate_code('0123456789')
 
             user.code = code
             user.save()        
-            data = {'user_id' : request.data['user_id'], 'code' : code}
+            data = {'email' : request.data['email'], 'code' : code}
 
             #create and send email html content
             html_content = render_to_string('users/new_code.html', {'user':user.name, 'code': user.code}) 
@@ -87,13 +92,61 @@ class ResendCode(generics.GenericAPIView):
             Util.send_email(email_data)
             return Response(data, status=status.HTTP_200_OK)
         else:
-            return Response({'error': "Access Denied, oops!"}, status=status.HTTP_423_LOCKED)
+            return Response({'error': "Access Denied, oops!"}, status=status.HTTP_400_BAD_REQUEST)
+
+@permission_classes((AllowAny, ))
+class ForgotPasswordView(generics.GenericAPIView):
+    serializer_class = ForgotPasswordSerializer
+    def put(self, request):
+        user_agent = request.META['HTTP_USER_AGENT']
+
+        if (user_agent == android) or (user_agent == expo_ios_phone) or (user_agent == expo_ios_simulator) or ('AppleWebKit/537.36' in user_agent):
+          
+            # generate the code
+            possible_chars = '1234567890abcdefghijkmnlopqrstuvwxyzABCDEFGHIJKMNLOPQRSTUVWXYZ'
+            password = generate_code(possible_chars)
+            try:
+                user = User.objects.get(email=request.data['email'])
+                user.set_password(password)
+                user.save()
+                data = {'email' : request.data['email']}
+
+                #create and send email html content
+                html_content = render_to_string('users/forgot_password.html', {'user': user.name, 'password': password}) 
+                email_data = {'email_subject': 'New Issued Password', 'to_email': user.email, 'html_content':html_content}
+                Util.send_email(email_data)
+                return Response(data, status=status.HTTP_200_OK)
+            except User.DoesNotExist:
+                return Response({'error': 'We couldn\'t find any Memoryze user with that email'}, status=status.HTTP_200_OK)       
+
+            #create new password with code
+            
+        else:
+            return Response({'error': "Access Denied, oops!"}, status=status.HTTP_400_BAD_REQUEST)
+
+@permission_classes((AllowAny, ))
+class VerifyUserView(generics.GenericAPIView):
+    serializer_class = VerifyUserSerializer
+    def put(self, request):
+        user_agent = request.META['HTTP_USER_AGENT']
+        
+        if (user_agent == android) or (user_agent == expo_ios_phone) or (user_agent == expo_ios_simulator) or ('AppleWebKit/537.36' in user_agent):
+          
+            user = User.objects.get(email=request.data['email'])
+            user.is_verified = True
+            user.save()
+            data = {'successful': 'successful'}
+            return Response(data, status=status.HTTP_200_OK)
+            
+        else:
+            return Response({'error': "Access Denied, oops!"}, status=status.HTTP_400_BAD_REQUEST)
 
 
 @permission_classes((AllowAny, ))       
 class UserView(generics.ListAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
+
 @permission_classes((AllowAny, ))
 class UserDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = User.objects.all()
@@ -105,6 +158,7 @@ class UserDetail(generics.RetrieveUpdateDestroyAPIView):
 @permission_classes((AllowAny, ))
 class MyTokenObtainPairView(TokenObtainPairView):
     serializer_class = MyTokenObtainPairSerializer
+
 @permission_classes((AllowAny, ))
 class MiddleManLoginView(generics.GenericAPIView):
     serializer_class = MiddleManLoginSerializer
@@ -124,4 +178,4 @@ class MiddleManLoginView(generics.GenericAPIView):
             response = requests.post(url, data=json.dumps(data), headers=headers)
             return  Response(response.json(), status=status.HTTP_200_OK)
         else:
-            return Response({'error': "Access Denied, oops!"}, status=status.HTTP_423_LOCKED)
+            return Response({'error': "Access Denied, oops!"}, status=status.HTTP_400_BAD_REQUEST)

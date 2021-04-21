@@ -10,10 +10,10 @@ env = environ.Env(
 api_key = env('ACCESS_KEY')
 
 urlpatterns = [
-    path('recordings/', views.AudioView.as_view(), name='audio_list'),
-    path(f'recordings/<int:pk>/{api_key}', views.AudioDetail.as_view(), name='audio_detail'),
+    path('recordings', views.AudioView.as_view(), name='audio_list'),
+    path(f'recordings/<int:pk>', views.AudioDetail.as_view(), name='audio_detail'),
     path('playlists/', views.PlaylistView.as_view(), name='playlist_list'),
-    path(f'playlists/<int:pk>/{api_key}', views.PlaylistDetail.as_view(), name='playlist_detail'),
+    path(f'playlists/<int:pk>', views.PlaylistDetail.as_view(), name='playlist_detail'),
     path('activities/', views.ActivityView.as_view(), name='activity_list'),
-    path(f'activities/<int:pk>/{api_key}', views.ActivityDetail.as_view(), name='activity_detail'),
+    path(f'activities/<int:pk>', views.ActivityDetail.as_view(), name='activity_detail'),
 ]

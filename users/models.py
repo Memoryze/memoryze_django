@@ -66,7 +66,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     # As with any Django models, we need to define the fields
     # for the model with the type and options:
     email = models.EmailField(max_length=255, unique=True)
-    name = models.CharField(max_length=255)
+    name = models.CharField(max_length=255, unique=True)
     is_tutor = models.BooleanField(default=False)
     is_learner = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)

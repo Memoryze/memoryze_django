@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from django.db import models
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from .models import User
 from rest_framework_simplejwt.settings import api_settings
@@ -40,13 +41,23 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
         # and everything else you want to send in the response
         return data
 class ResendCodeSerializer(serializers.ModelSerializer):
-    user_id = serializers.IntegerField()
+    email = models.EmailField()
     class Meta:
         model = User
-        fields = ['user_id']
+        fields = ['email']
 class MiddleManLoginSerializer(serializers.ModelSerializer):
     email = serializers.EmailField(max_length=255)
     password = serializers.CharField(max_length=255)
     class Meta:
         model = User
         fields = ['email', 'password']
+class ForgotPasswordSerializer(serializers.ModelSerializer):
+    email = models.EmailField()
+    class Meta:
+        model = User
+        fields = ['email']
+class VerifyUserSerializer(serializers.ModelSerializer):
+    email = models.EmailField()
+    class Meta:
+        model = User
+        fields = ['email']
