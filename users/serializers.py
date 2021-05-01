@@ -12,7 +12,7 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
     
     class Meta:
         model = User
-        fields = ('id', 'name','email', 'password', 'audios', 'playlists','profile_image', 'bio', 'code','is_verified','is_learner', 'is_tutor', 'created_at', 'updated_at', 'activities')
+        fields = ('id', 'first_name', 'last_name','email', 'password', 'audios', 'playlists','profile_image', 'bio', 'code','is_verified','is_learner', 'is_tutor', 'created_at', 'updated_at', 'activities')
 class UserRegistrationSerializer(serializers.ModelSerializer):
     password = serializers.CharField(
         max_length=68, min_length=6, write_only=True)
@@ -22,7 +22,7 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
     activities = ActivitySerializer(many=True, read_only=True)
     class Meta:
         model = User
-        fields = ('id', 'name','email', 'password', 'audios', 'playlists','profile_image', 'bio','code', 'is_verified','is_learner', 'is_tutor', 'created_at', 'updated_at','activities')
+        fields = ('id','first_name', 'last_name','email', 'password', 'audios', 'playlists','profile_image', 'bio','code', 'is_verified','is_learner', 'is_tutor', 'created_at', 'updated_at','activities')
 
     def create(self, validated_data):
         password = validated_data.pop('password', None)

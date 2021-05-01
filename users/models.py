@@ -16,7 +16,7 @@ class UserManager(BaseUserManager):
     #            This ensures the proper error is thrown if a password is
     #            not provided.
     # **extra_fields:  Just in case there are extra arguments passed.
-    def create_user(self, email, name, password=None, **extra_fields):
+    def create_user(self, email, first_name, last_name, password=None, **extra_fields):
         """Create a new user profile"""
         # Add a custom validation error
         if not email:
@@ -28,7 +28,7 @@ class UserManager(BaseUserManager):
         # We'll also unwind the extra fields.  Remember that two asterisk (**)
         # in Python refers to the extra keyword arguments that are passed into
         # a function (meaning these are key=value pairs).
-        user = self.model(email=self.normalize_email(email), name=name, **extra_fields)
+        user = self.model(email=self.normalize_email(email), first_name=first_name, last_name=last_name, **extra_fields)
 
         # Use the set_password method to hash the password
         user.set_password(password)
@@ -38,12 +38,12 @@ class UserManager(BaseUserManager):
         # Always return the user!
         return user
 
-    def create_superuser(self, email, name, password):
+    def create_superuser(self, email, first_name, last_name, password):
         """Create and save a new superuser with given details"""
 
         # Use the custom create_user method above to create
         # the user.
-        user = self.create_user(email, name, password)
+        user = self.create_user(email, first_name, last_name, password)
 
         # Add the required is_superuser and is_staff properties
         # which must be set to True for superusers
@@ -66,7 +66,8 @@ class User(AbstractBaseUser, PermissionsMixin):
     # As with any Django models, we need to define the fields
     # for the model with the type and options:
     email = models.EmailField(max_length=255, unique=True)
-    name = models.CharField(max_length=255, unique=True)
+    first_name = models.CharField(max_length=255, default=email)
+    last_name = models.CharField(max_length=255, default=email)
     is_tutor = models.BooleanField(default=False)
     is_learner = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
@@ -87,7 +88,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     # user account instead of its built in behavior of using the username.
     USERNAME_FIELD = 'email'
     # https://docs.djangoproject.com/en/3.0/topics/auth/customizing/#django.contrib.auth.models.CustomUser.REQUIRED_FIELDS
-    REQUIRED_FIELDS = ['name']
+    REQUIRED_FIELDS = ['first_name', 'last_name']
 
     def __str__(self):
         """Return string representation of the user"""

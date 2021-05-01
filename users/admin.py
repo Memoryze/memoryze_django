@@ -5,7 +5,7 @@ from . import models
 
 class UserAdmin(BaseUserAdmin):
     ordering = ['id']
-    list_display = ['id', 'email', 'name', 'is_superuser', 'last_login']
+    list_display = ['id', 'email', 'first_name', 'last_name', 'is_superuser', 'last_login']
     # The fieldsets are used when you edit a new user via the admin site.
     # fieldsets is a list in the form of two tuples, where each pair represents an
     # html <fieldset> on the admin page.  The tuples are in the format:
@@ -15,7 +15,7 @@ class UserAdmin(BaseUserAdmin):
     # Below we're saying create 4 sections, the first section has no name specified
     fieldsets = (
       (None, {'fields': ('email', 'password')}),
-      ('Personal Info', {'fields': ('name',)}),
+      ('Personal Info', {'fields': ('first_name', 'last_name',)}),
       ('Permissions',
           {
               'fields': (
@@ -32,7 +32,7 @@ class UserAdmin(BaseUserAdmin):
     add_fieldsets = (
         (None, {
             'classes': ('wide',),
-            'fields': ('email', 'name', 'password1', 'password2')
+            'fields': ('email', 'first_name', 'last_name', 'password1', 'password2')
         }),
     )
 

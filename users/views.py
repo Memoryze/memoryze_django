@@ -30,7 +30,7 @@ env = environ.Env(
 # Create your views here.
 android = 'okhttp/3.12.1'
 expo_ios_phone = 'Expo/2.18.4.1010552 CFNetwork/1209 Darwin/20.2.0'
-expo_ios_simulator = 'Expo/2.17.4.101 CFNetwork/1220.1 Darwin/20.2.0'
+expo_ios_simulator = 'Expo/2.17.4.101 CFNetwork/1237 Darwin/20.2.0'
 
 def generate_code(possible_chars):
     code = '' 
@@ -45,6 +45,7 @@ class UserCreate(generics.GenericAPIView):
     serializer_class = UserRegistrationSerializer
     def post(self, request):
         user_agent = request.META['HTTP_USER_AGENT']
+        print("expo user agent: " + user_agent)
 
         if (user_agent == android) or (user_agent == expo_ios_phone) or (user_agent == expo_ios_simulator) or ('AppleWebKit/537.36' in user_agent): 
             user = request.data
@@ -55,18 +56,14 @@ class UserCreate(generics.GenericAPIView):
                 user = User.objects.get(email=user_data['email'])
 
                 code = user.code
-                html_content = render_to_string('users/sign_up_verification_code.html', {'user':user.name, 'code': code})
+                html_content = render_to_string('users/sign_up_verification_code.html', {'user':user.first_name, 'code': code})
 
                 data = {'email_subject': 'Email Verification Code', 'to_email': user.email, 'html_content':html_content}
                 Util.send_email(data)
 
                 return Response(user_data, status=status.HTTP_201_CREATED)
             else:
-                try:
-                    user = User.objects.get(name=request.data['name'])
-                    return Response({'error': 'Username taken'}, status=status.HTTP_200_OK)
-                except User.DoesNotExist:
-                    return Response({'error': 'User with email already exists'}, status=status.HTTP_200_OK)       
+                return Response({'error': 'User with email already exists'}, status=status.HTTP_200_OK)       
         else:
             return Response({'error': "Access Denied, oops!"}, status=status.HTTP_423_LOCKED)
 
@@ -87,7 +84,7 @@ class ResendCodeView(generics.GenericAPIView):
             data = {'email' : request.data['email'], 'code' : code}
 
             #create and send email html content
-            html_content = render_to_string('users/new_code.html', {'user':user.name, 'code': user.code}) 
+            html_content = render_to_string('users/new_code.html', {'user':user.first_name, 'code': user.code}) 
             email_data = {'email_subject': 'New Email Verification Code', 'to_email': user.email, 'html_content':html_content}
             Util.send_email(email_data)
             return Response(data, status=status.HTTP_200_OK)
@@ -112,7 +109,7 @@ class ForgotPasswordView(generics.GenericAPIView):
                 data = {'email' : request.data['email']}
 
                 #create and send email html content
-                html_content = render_to_string('users/forgot_password.html', {'user': user.name, 'password': password}) 
+                html_content = render_to_string('users/forgot_password.html', {'user': user.first_name, 'password': password}) 
                 email_data = {'email_subject': 'New Issued Password', 'to_email': user.email, 'html_content':html_content}
                 Util.send_email(email_data)
                 return Response(data, status=status.HTTP_200_OK)
